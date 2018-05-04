@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# remove previously installed Docker or lxc (if any)
+echo -e "[cleaning previous docker or lxc installations...]\n"
+sudo apt-get remove docker docker-engine docker.io* lxc-docker*
+echo -e "[done]"
+
+# refresh apt-get cache
+echo -e "[refresh apt-get cache...]\n"
+export DEBIAN_FRONTEND="noninteractive"
+sudo apt-get update
+echo -e "[done]\n"
+
+# install dependencies for certs
+echo -e "[installating depedencies...]\n"
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+echo -e "[done]\n"
+
+# add Docker repo gpg key
+echo -e "[adding docker key to apt-key...]\n"
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+echo -e "[done]\n"
+
+# add docker repo to repo list
+echo -e "[adding docker repo to apt...]\n"
+echo "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable" > /etc/apt/sources.list.d/docker.list 
+sudo apt-get update
+echo -e "[done]\n"
+
+# install Docker
+echo -e "[installing docker...]\n"
+sudo apt-get install -y docker-ce
+echo -e "[done]\n"
+
+# manage Docker as a non-root user
+echo -e "[creating docker user-group...]\n"
+sudo groupadd docker
+sudo usermod -aG docker $USER
+echo -e "[done]\n"
+
+# run Hellow World image to test installation
+echo -e "[testing docker instalation...]\n"
+sudo docker run hello-world
+echo -e "[done]\n"
+
+# configure Docker to start on boot
+echo -e "[enabling docker autostart at boot...]\n"
+sudo systemctl enable docker
+echo -e "[done]\n"
+
